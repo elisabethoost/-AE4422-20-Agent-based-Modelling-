@@ -1,0 +1,5 @@
+- Positive constraints: apply to all agents
+- Negative constraints: apply to a single agent
+- Vertex and edge constraints: apply to collisions
+
+- Distributed.py  --> solver which we will most likely be working with

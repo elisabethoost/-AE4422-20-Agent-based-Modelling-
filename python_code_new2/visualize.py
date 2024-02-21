@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from matplotlib.patches import Circle, Rectangle
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
