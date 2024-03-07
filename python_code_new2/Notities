@@ -3,3 +3,25 @@
 - Vertex and edge constraints: apply to collisions
 
 - Distributed.py  --> solver which we will most likely be working with
+
+
+for elke agent
+    bereken constraints voor elke agent
+    bereken path voor elke agent met a_star
+
+for t in T
+    for elke agent
+        check goal - is er een goal, dan doen we iets
+            check radius - is er geen agent in radius?
+                         --> move volgens a_star bepaald path
+                         --> delete current position (t) from path, want nu is agent op position t+1
+            Wel agent in radius
+                  Communiceer path t+1 en t+2, en get t+1 en t+2 from agent.
+                  bepaal welke agent voorrang heeft (dus path behoudt)
+                  bepaal nu een extra constraint voor de andere agent
+                  update constraints voor deze agent
+                  remake path volgens a_star voor deze agent
+                  continue
+
+vertex constraints werken andersom  {t, t-1}
+

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
 
+
 Colors = ['green', 'blue', 'orange']
 
 
@@ -44,6 +45,7 @@ class Animation:
         y_max = len(self.my_map[0]) - 0.5
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
+
 
         self.patches.append(Rectangle((x_min, y_min), x_max - x_min, y_max - y_min, facecolor='none', edgecolor='gray'))
         for i in range(len(self.my_map)):
@@ -129,3 +131,4 @@ class Animation:
             pos_next = np.array(path[int(t)])
             pos = (pos_next - pos_last) * (t - int(t)) + pos_last
             return pos
+
