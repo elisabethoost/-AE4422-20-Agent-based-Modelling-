@@ -22,6 +22,6 @@ for t in T
                   update constraints voor deze agent
                   remake path volgens a_star voor deze agent
                   continue
-
+hi
 vertex constraints werken andersom  {t, t-1}
 
