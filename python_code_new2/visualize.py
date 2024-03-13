@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 from matplotlib.patches import Circle, Rectangle
 import matplotlib
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
+from matplotlib.widgets import Button
 
-
-Colors = ['green', 'blue', 'orange']
+# Colors = ['green', 'blue', 'orange']
+Colors = ['green', 'blue', 'orange', 'purple', 'magenta', 'cyan', 'yellow']
 
 
 class Animation:
@@ -31,21 +33,19 @@ class Animation:
         self.fig = plt.figure(frameon=False, figsize=(4 * aspect, 4))
         self.ax = self.fig.add_subplot(111, aspect='equal')
         self.fig.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=None, hspace=None)
-        # self.ax.set_frame_on(False)
 
         self.patches = []
         self.artists = []
         self.agents = dict()
         self.agent_names = dict()
-        # create boundary patch
 
+        # create boundary patch
         x_min = -0.5
         y_min = -0.5
         x_max = len(self.my_map) - 0.5
         y_max = len(self.my_map[0]) - 0.5
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
-
 
         self.patches.append(Rectangle((x_min, y_min), x_max - x_min, y_max - y_min, facecolor='none', edgecolor='gray'))
         for i in range(len(self.my_map)):
@@ -55,7 +55,6 @@ class Animation:
 
         # create agents:
         self.T = 0
-        # draw goals first
         for i, goal in enumerate(self.goals):
             self.patches.append(Rectangle((goal[0] - 0.25, goal[1] - 0.25), 0.5, 0.5, facecolor=Colors[i % len(Colors)],
                                           edgecolor='black', alpha=0.5))
@@ -71,11 +70,21 @@ class Animation:
             self.agent_names[i].set_verticalalignment('center')
             self.artists.append(self.agent_names[i])
 
+        # Pause button
+        self.pause_ax = self.fig.add_axes([0.8, 0.025, 0.1, 0.04])
+        self.pause_button = Button(self.pause_ax, 'Pause', hovercolor='0.975')
+        self.pause_button.on_clicked(self.toggle_pause)
+
         self.animation = animation.FuncAnimation(self.fig, self.animate_func,
                                                  init_func=self.init_func,
                                                  frames=int(self.T + 1) * 10,
                                                  interval=100,
                                                  blit=True)
+
+        self.paused = False
+
+    def toggle_pause(self, event):
+        self.paused = not self.paused
 
     def save(self, file_name, speed):
         self.animation.save(
@@ -96,16 +105,17 @@ class Animation:
         return self.patches + self.artists
 
     def animate_func(self, t):
+        if self.paused:
+            return self.patches + self.artists
+
         for k in range(len(self.paths)):
             pos = self.get_state(t / 10, self.paths[k])
             self.agents[k].center = (pos[0], pos[1])
             self.agent_names[k].set_position((pos[0], pos[1] + 0.5))
 
-        # reset all colors
         for _, agent in self.agents.items():
             agent.set_facecolor(agent.original_face_color)
 
-        # check drive-drive collisions
         agents_array = [agent for _, agent in self.agents.items()]
         for i in range(0, len(agents_array)):
             for j in range(i + 1, len(agents_array)):
@@ -116,7 +126,7 @@ class Animation:
                 if np.linalg.norm(pos1 - pos2) < 0.7:
                     d1.set_facecolor('red')
                     d2.set_facecolor('red')
-                    print("COLLISION! (agent-agent) ({}, {}) at time {}".format(i, j, t/10))
+                    print("COLLISION! (agent-agent) ({}, {}) at time {}".format(i, j, t / 10))
 
         return self.patches + self.artists
 
@@ -132,3 +142,9 @@ class Animation:
             pos = (pos_next - pos_last) * (t - int(t)) + pos_last
             return pos
 
+# Example usage:
+# my_map = np.zeros((10, 10))
+# starts = [(1, 1), (2, 2)]
+# goals = [(8, 8), (7, 7)]
+# paths = [[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)],
+#          [(2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7
