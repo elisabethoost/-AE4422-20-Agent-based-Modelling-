@@ -227,6 +227,9 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
 
     return None  # Failed to find solutions
 
+
+
+
     # open_list = []
     # closed_list = dict()
     # earliest_goal_timestep = 0
