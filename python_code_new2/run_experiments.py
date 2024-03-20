@@ -16,7 +16,7 @@ from visualize import Animation
 from single_agent_planner import get_sum_of_cost
 
 SOLVER = "Distributed"
-
+# SOLVER = "Prioritized"
 def print_mapf_instance(my_map, starts, goals):
     """
     Prints start location and goal location of all agents, using @ for an obstacle, . for a open cell, and 

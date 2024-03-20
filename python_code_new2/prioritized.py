@@ -33,16 +33,6 @@ class PrioritizedPlanningSolver(object):
 
         for i in range(self.num_of_agents):  # Find path for each agent
 
-            # if i == 1:
-            #     constraints.append({'agent': i, 'loc': [self.goals[i]], 'timestep': 3, 'positive': False})
-            #     # constraints.append()
-            # result1.append(i)
-            #
-            # if i == 0:
-            #     # Prohibiting agent 1 from moving from its start cell (1, 2) to neighboring cell (1, 3) from time step 0 to time step 1
-            #     constraints.append({'agent': i, 'loc': [(1, 3), (2, 3)], 'timestep': 2, 'positive': False})
-            #     # constraints.append({'agent': i, 'loc': [(1, 2), (1, 3)], 'timestep': 0, 'positive': False})
-
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
             print(constraints)
@@ -50,7 +40,6 @@ class PrioritizedPlanningSolver(object):
                 raise BaseException('No solutions')
             result.append(path)
 
-            # for j in range(i+1, self.num_of_agents):
             for j in range(self.num_of_agents):
                 for t in range(len(path)):
                     if j > i:
@@ -81,7 +70,7 @@ class PrioritizedPlanningSolver(object):
                     }
                     )
 
-            print(constraints)
+            # print(constraints)
             ##############################
             # Task 2: Add constraints here
             #         Useful variables:
