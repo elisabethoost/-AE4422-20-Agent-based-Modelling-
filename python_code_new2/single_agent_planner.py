@@ -8,7 +8,7 @@ def move(loc, dir):
 def get_sum_of_cost(paths):
     rst = 0
     for path in paths:
-        rst += len(path) - 1
+        rst += (len(path) - 1)
     return rst
 
 
@@ -48,23 +48,23 @@ def compute_heuristics(my_map, goal):
 
 
 def build_constraint_table(constraints, agent):
-    ##############################
+    #############################
     # Task 2.2/2.3: Return a table that constains the list of constraints of
     #               the given agent for each time step. The table can be used
-    #               for a more efficient constraint violation check in the 
+    #               for a more efficient constraint violation check in the
     #               is_constrained function.
 
-    # max_timestep = -1  # the maximum timestep in these constraints
-    # #  collect constraints that are related to this agent
-    # for constraint in constraints:
-    #     if constraint['agent'] == agent:
-    #         max_timestep = max(max_timestep, constraint['timestep'])
+    max_timestep = -1  # the maximum timestep in these constraints
+    #  collect constraints that are related to this agent
+    for constraint in constraints:
+        if constraint['agent'] == agent:
+            max_timestep = max(max_timestep, constraint['timestep'])
 
-    # constraint_table = [[] for _ in range(max_timestep + 1)]
+    constraint_table = [[] for _ in range(max_timestep + 1)]
 
-    # for constraint in constraints:
-    #     if constraint['agent'] == agent:
-    #         constraint_table[constraint['timestep']].append({'loc': constraint['loc']})
+    for constraint in constraints:
+        if constraint['agent'] == agent:
+            constraint_table[constraint['timestep']].append({'loc': constraint['loc']})
 
     # return constraint_table
 
@@ -130,16 +130,16 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table):
     #               any given constraint. For efficiency the constraints are indexed in a constraint_table
     #               by time step, see build_constraint_table.
 
-    # if len(constraint_table) <= next_time:
-    #     return False
+    if len(constraint_table) <= next_time:
+        return False
 
-    # for constraint in constraint_table[next_time]:
-    #     if len(constraint['loc']) == 1:  # vertex constraint
-    #         if constraint['loc'][0] == next_loc:
-    #             return True
-    #     else:  # edge constraint
-    #         if constraint['loc'] == [curr_loc, next_loc]:
-    #             return True
+    for constraint in constraint_table[next_time]:
+        if len(constraint['loc']) == 1:  # vertex constraint
+            if constraint['loc'][0] == next_loc:
+                return True
+        else:  # edge constraint
+            if constraint['loc'] == [curr_loc, next_loc]:
+                return True
 
     # return False
 
@@ -227,6 +227,9 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
 
     return None  # Failed to find solutions
 
+
+
+
     # open_list = []
     # closed_list = dict()
     # earliest_goal_timestep = 0
@@ -254,5 +257,5 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     #         else:
     #             closed_list[(next['loc'])] = next
     #             push_node(open_list, next)
-
+    #
     # return None  # Failed to find solutions
