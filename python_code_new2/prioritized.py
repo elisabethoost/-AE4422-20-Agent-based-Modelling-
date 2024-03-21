@@ -46,18 +46,24 @@ class PrioritizedPlanningSolver(object):
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
             print(constraints)
+
             if path is None:
                 raise BaseException('No solutions')
             result.append(path)
-
-            # for j in range(i+1, self.num_of_agents):
+            # print(path)
+            # if i == 0:
+                # constraints.append({'agent': 0, 'loc': path[3], 'timestep': 3, 'positive': False})
+                # constraints.append({'agent': 1, 'loc': path[2], 'timestep': 2, 'positive': False})
+            # # for j in range(i+1, self.num_of_agents):
             for j in range(self.num_of_agents):
-                for t in range(len(path)):
+                for t in range(len(path)): #t=0,1,2,3,4,5; t=0,1,2
                     if j > i:
+                        # constraints.append({'agent': j, 'loc': path[3], 'timestep': 3, 'positive': False})
+
                         constraints.append( #vertex constraints
                             {
                                 'agent': j,
-                                'loc': path[t],
+                                'loc': [path[t]],
                                 'timestep': t,
                                 'positive': False
                             })
@@ -74,14 +80,14 @@ class PrioritizedPlanningSolver(object):
                 constraints.append(
                     {
                         'agent': j,
-                        'loc': path[-1],
+                        'loc': [path[-1]],
                         'timestep': -1,
                         'start_time': len(path) - 1,
                         'positive':False
                     }
                     )
 
-            print(constraints)
+            # print(constraints)
             ##############################
             # Task 2: Add constraints here
             #         Useful variables:
