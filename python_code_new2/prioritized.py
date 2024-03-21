@@ -28,15 +28,49 @@ class PrioritizedPlanningSolver(object):
 
         start_time = timer.time()
         result = []
+        result1 = []
         constraints = []
 
         for i in range(self.num_of_agents):  # Find path for each agent
+
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
+            print(constraints)
             if path is None:
                 raise BaseException('No solutions')
             result.append(path)
 
+            for j in range(self.num_of_agents):
+                for t in range(len(path)):
+                    if j > i:
+                        constraints.append( #vertex constraints
+                            {
+                                'agent': j,
+                                'loc': path[t],
+                                'timestep': t,
+                                'positive': False
+                            })
+                        #edge constraints
+                        constraints.append(
+                            {
+                                'agent': j,
+                                'loc': [path[t], path[t-1]], #first location: where it is going, second timestep: curr loc, where it was
+                                'timestep': t,
+                                'positive': False
+                            }
+                        )
+                # apply vertex constraint for finished agents. 'start_time' is when the constraint should apply
+                constraints.append(
+                    {
+                        'agent': j,
+                        'loc': path[-1],
+                        'timestep': -1,
+                        'start_time': len(path) - 1,
+                        'positive':False
+                    }
+                    )
+
+            # print(constraints)
             ##############################
             # Task 2: Add constraints here
             #         Useful variables:
@@ -49,8 +83,9 @@ class PrioritizedPlanningSolver(object):
 
         self.CPU_time = timer.time() - start_time
 
+
         print("\n Found a solution! \n")
         print("CPU time (s):    {:.2f}".format(self.CPU_time))
         print("Sum of costs:    {}".format(get_sum_of_cost(result)))
-        print(result)
+        print('result', result)
         return result

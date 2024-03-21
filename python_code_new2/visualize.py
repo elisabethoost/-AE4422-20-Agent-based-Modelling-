@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from matplotlib.patches import Circle, Rectangle
 import matplotlib
 
@@ -147,4 +146,4 @@ class Animation:
 # starts = [(1, 1), (2, 2)]
 # goals = [(8, 8), (7, 7)]
 # paths = [[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)],
-#          [(2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7
+#          [(2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7
