@@ -1,5 +1,5 @@
 import time as timer
-from single_agent_planner import compute_heuristics, a_star, get_sum_of_cost
+from single_agent_planner import compute_heuristics, a_star_one, get_sum_of_cost
 
 
 class PrioritizedPlanningSolver(object):
@@ -33,28 +33,14 @@ class PrioritizedPlanningSolver(object):
 
         for i in range(self.num_of_agents):  # Find path for each agent
 
-            # if i == 1:
-            #     constraints.append({'agent': i, 'loc': [self.goals[i]], 'timestep': 3, 'positive': False})
-            #     # constraints.append()
-            # result1.append(i)
-            #
-            # if i == 0:
-            #     # Prohibiting agent 1 from moving from its start cell (1, 2) to neighboring cell (1, 3) from time step 0 to time step 1
-            #     constraints.append({'agent': i, 'loc': [(1, 3), (2, 3)], 'timestep': 2, 'positive': False})
-            #     # constraints.append({'agent': i, 'loc': [(1, 2), (1, 3)], 'timestep': 0, 'positive': False})
-
-            path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
+            path = a_star_one(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
             print(constraints)
 
             if path is None:
                 raise BaseException('No solutions')
             result.append(path)
-            # print(path)
-            # if i == 0:
-                # constraints.append({'agent': 0, 'loc': path[3], 'timestep': 3, 'positive': False})
-                # constraints.append({'agent': 1, 'loc': path[2], 'timestep': 2, 'positive': False})
-            # # for j in range(i+1, self.num_of_agents):
+
             for j in range(self.num_of_agents):
                 for t in range(len(path)): #t=0,1,2,3,4,5; t=0,1,2
                     if j > i:
@@ -83,7 +69,7 @@ class PrioritizedPlanningSolver(object):
                         'loc': [path[-1]],
                         'timestep': -1,
                         'start_time': len(path) - 1,
-                        'positive':False
+                        'positive': False
                     }
                     )
 
