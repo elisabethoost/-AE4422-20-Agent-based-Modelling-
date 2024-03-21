@@ -46,7 +46,7 @@ class DistributedPlanningSolver(object):
         for i in range(self.num_of_agents):  # Find path for each agent
             # constraints = [{'agent': 4, 'loc': [(1, 4)], 'timestep': 3, 'positive': False}]
             # constraints = [{'agent': 4, 'loc': (1, 4), 'timestep': 3, 'positive': False}]
-            path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i], i, constraints)
+            path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i], i, constraints, time)
             if path is None:
                 raise BaseException('No solutions')
             first_result.append(path)
@@ -63,8 +63,8 @@ class DistributedPlanningSolver(object):
                     if self.goals[i] == intermediate_result[i][0]:
                         if i != j:
                             # for t in range(time+3):
-                            for t in range(3):
-                                constraints.append({'agent': j, 'loc': [self.goals[i]], 'timestep': t, 'positive': False})
+                            for t in range(1):
+                                constraints.append({'agent': j, 'loc': [self.goals[i]], 'timestep': t+time, 'positive': False})
 
 
             # Find neighboring agents within radius
@@ -96,7 +96,7 @@ class DistributedPlanningSolver(object):
 
             for i in range(len(detected)):
                 agent0, agent1 = detected[i]
-                possible_collision, location, time_to_collision = detect_collision(agent0, agent1, intermediate_result)
+                possible_collision, location, time_to_collision = detect_collision(agent0, agent1, intermediate_result, self.goals)
 
                 if possible_collision != 0: ### if there is a collision detected soon
                     print('agents', detected[i],'detect a collision', time_to_collision, 'seconds from now')
@@ -132,6 +132,7 @@ class DistributedPlanningSolver(object):
             if time == stop_time and stop_time != 0:
                 condition = False
             time += 1
+            self.timestep = time
 
         # Print final output
         print("\n Found a solution! \n")
@@ -143,7 +144,7 @@ class DistributedPlanningSolver(object):
         # return first_result  # Hint: this should be the final result of the distributed planning (visualization is done after planning)
 
 
-def detect_collision(agent1, agent2, result):
+def detect_collision(agent1, agent2, result, goal):
     agent1_path, agent2_path = result[agent1], result[agent2]
     # Calculate the maximum number of timesteps to consider
     max_steps = min(len(agent1_path), len(agent2_path), 3)
@@ -160,39 +161,40 @@ def detect_collision(agent1, agent2, result):
             collision += 3
             location_detected.append([agent1_path[t], agent2_path[t]])
             t_t.append(t)
-    # if collision == 1:
-        # print('One vertex collision detected', collision)
-        # print('location detected', location_detected)
-    # elif collision == 2:
-        # print('Two vertex collisions detected', collision)
-        # print('location detected', location_detected)
-    # elif collision == 3:
-    #     print('One edge collision detected', collision)
-    #     print('location detected', location_detected)
-    # elif collision == 4:
-    #     print('One vertex and one edge collisions detected', collision)
-    #     print('location detected', location_detected)
-    # elif collision == 5:
-    #     print('Two vertex and one edge collision detected', collision)
-    #     print('location detected', location_detected)
-    # elif collision >= 6:
-    #     print('At least two edge collisions detected, or one edge and three vertex', collision)
-    #     print('location detected', location_detected)
+    if len(agent2_path) > 1:
+        if agent1_path[0] == goal[agent1] and agent2_path[1] == goal[agent1]:
+            collision += 1
+            location_detected.append([agent1_path[0], agent2_path[1]])
+            t_t.append(1)
+            print('YEEEEEEESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
+    if len(agent1_path) > 1:
+        if agent2_path[0] == goal[agent2] and agent1_path[1] == goal[agent2]:
+            collision += 1
+            location_detected.append([agent2_path[0], agent1_path[1]])
+            t_t.append(1)
+            print('YEEEEEEESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
     return collision, location_detected, t_t
 
 
-def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, loc_of_collision, t_o_collision, t, collision, close_ag):
+def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, loc_of_collision, t_o_collision, time, collision, close_ag):
     agents = [agent1, agent2]
     i, j = agents
     max_steps = min(len(current_loc[i]), len(current_loc[j]), 3)
     for t in range(max_steps):
-        print('LOOP 1')
-        const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': t, 'positive': False})
-        const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': t, 'positive': False})
+        const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': time+t, 'positive': False})
+        const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': time+t, 'positive': False})
         if collision >= 3:
-            print('LOOP 2')
-            const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': t, 'positive': False})
-            const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': t, 'positive': False})
+            const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': time+t, 'positive': False})
+            const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': time+t, 'positive': False})
+        if current_loc[j][t] == goal[j]:
+            # print('HII')
+            for l in range(30):
+                const.append({'agent': i, 'loc': [current_loc[j][0]], 'timestep': time+t+l, 'positive': False})
+        if current_loc[i][t] == goal[i]:
+            for l in range(30):
+            # print('HELLO')
+                const.append({'agent': j, 'loc': [current_loc[i][0]], 'timestep': time+t+l, 'positive': False})
+
 
     # for t in range(max_steps-1):
     #     const.append({'agent': i, 'loc': [current_loc[j][t+1], current_loc[j][t]], 'timestep': t, 'positive': False})
@@ -202,17 +204,71 @@ def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, loc_
     print('agent', j,'is now at', current_loc[j][0], 'and will collide at', loc_of_collision)
     # print(const)
 
-    path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const)
-    path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const)
+    path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const, time)
+    path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const, time)
 
-    if len(path_new_a) > len(path_new_b):
-        path_new = path_new_b
-        print('new path for agent', j, 'is', path_new, 'to goal location', goal[j])
-        changed_agent = j
-    else:
+    # if len(path_new_a) > len(path_new_b):
+    #     path_new = path_new_b
+    #     print('new path for agent', j, 'is', path_new, 'to goal location', goal[j])
+    #     changed_agent = j
+    # else:
+    #     path_new = path_new_a
+    #     changed_agent = i
+    #     print('new path for agent', i, 'is', path_new, 'to goal location', goal[i])
+    k_a = 0
+    k_b = 0
+    if current_loc[j] == goal[j]:
+        k_a = 2
+    if current_loc[i] == goal[i]:
+        k_b = 2
+    optional_path_length_a = len(path_new_a) + len(current_loc[j]) - k_a
+    optional_path_length_b = len(path_new_b) + len(current_loc[i]) - k_b
+    # if len(path_new_a) > len(path_new_b) and k_b == 0 and k_a == 0:
+    #     path_new = path_new_b
+    #     print('new path for agent', j, 'is', path_new, 'to goal location', goal[j])
+    #     changed_agent = j
+    # elif len(path_new_a) <= len(path_new_b) and k_a == 0 and k_b == 0:
+    #     path_new = path_new_a
+    #     changed_agent = i
+    #     print('new path for agent', i, 'is', path_new, 'to goal location', goal[i])
+    # if optional_path_length_a <= optional_path_length_b and k_a == 0 or k_b == 0:
+    #     path_new = path_new_b
+    #     changed_agent = j
+    # elif optional_path_length_a > optional_path_length_b:
+    #     path_new = path_new_a
+    #     changed_agent = i
+    # elif path_new_a is None and path_new_b is not None:
+    #     path_new = path_new_b
+    #     changed_agent = j
+    # elif path_new_b is None and path_new_a is not None:
+    #     path_new = path_new_a
+    #     changed_agent = i
+    if k_a == 2 and path_new_a is not None:
         path_new = path_new_a
         changed_agent = i
-        print('new path for agent', i, 'is', path_new, 'to goal location', goal[i])
+    elif k_b == 2 and path_new_b is not None:
+        path_new = path_new_b
+        changed_agent = j
+    elif path_new_a is None and path_new_b is not None:
+        path_new = path_new_b
+        changed_agent = j
+    elif path_new_b is None and path_new_a is not None:
+        path_new = path_new_a
+        changed_agent = i
+    elif path_new_a is not None and path_new_b is not None:
+        if k_a == 2:
+            path_new = path_new_a
+            changed_agent = i
+        elif k_b == 2:
+            path_new = path_new_b
+            changed_agent = j
+        elif optional_path_length_a <= optional_path_length_b:
+            path_new = path_new_b
+            changed_agent = j
+        elif optional_path_length_a > optional_path_length_b:
+            path_new = path_new_a
+            changed_agent = i
+    # elif path_new_a is not None :
 
     print('new path', path_new)
     if path_new is None:
@@ -223,24 +279,29 @@ def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, loc_
     for i in close_ag:
         for j in close_ag:
             if i != j:
-                collide, edge_location, time_point = detect_collision(i, j, current_loc_trial)
+                collide, edge_location, time_point = detect_collision(i, j, current_loc_trial, goal)
                 if collide != 0:
-                    print('Errors found in new path: new collisions between', i, 'and', j, 'at', edge_location, 'at time', time_point)
+                    # print('Errors found in new path: new collisions between', i, 'and', j, 'at', edge_location, 'at time', time_point+time)
                     max_steps = min(len(current_loc[i]), len(current_loc[j]), 3)
                     for t in range(max_steps):
                         if collide == 1 or collide == 2:
-                            const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': t, 'positive': False})
-                            const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': t, 'positive': False})
+                            const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': t+time, 'positive': False})
+                            const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': t+time, 'positive': False})
+                        # if current_loc[i][t] == goal[i]:
+                        #     const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': t+time+1, 'positive': False})
+                        # if current_loc[j][t] == goal[j]:
+                        #     const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': t+time+1, 'positive': False})
                         elif collide == 3:
-                            const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': t, 'positive': False})
-                            const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': t, 'positive': False})
+                            const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': t+time, 'positive': False})
+                            const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': t+time, 'positive': False})
                         elif collide >= 4:
-                            const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': t, 'positive': False})
-                            const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': t, 'positive': False})
-                            const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': t, 'positive': False})
-                            const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': t, 'positive': False})
-                    path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const)
-                    path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const)
+                            const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': t+time, 'positive': False})
+                            const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': t+time, 'positive': False})
+                            const.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': t+time, 'positive': False})
+                            const.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': t+time, 'positive': False})
+
+                    path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const, time)
+                    path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const, time)
                     if len(path_new_a) > len(path_new_b):
                         path_new = path_new_b
                         print('new path for agent', j, 'is', path_new, 'to goal location', goal[j])
