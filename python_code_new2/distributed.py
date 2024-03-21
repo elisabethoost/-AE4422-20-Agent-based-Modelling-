@@ -175,13 +175,11 @@ def detect_collision(agent1, agent2, result, goal):
             collision += 1
             location_detected.append([agent1_path[0], agent2_path[1]])
             t_t.append(1)
-            print('YEEEEEEESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
     if len(agent1_path) > 1:
         if agent2_path[0] == goal[agent2] and agent1_path[1] == goal[agent2]:
             collision += 1
             location_detected.append([agent2_path[0], agent1_path[1]])
             t_t.append(1)
-            print('YEEEEEEESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
     return collision, location_detected, t_t
 
 
@@ -196,66 +194,35 @@ def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, loc_
             const.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': time+t, 'positive': False})
             const.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': time+t, 'positive': False})
         if current_loc[j][t] == goal[j]:
-            # print('HII')
             for l in range(30):
                 const.append({'agent': i, 'loc': [current_loc[j][0]], 'timestep': time+t+l, 'positive': False})
         if current_loc[i][t] == goal[i]:
             for l in range(30):
-            # print('HELLO')
                 const.append({'agent': j, 'loc': [current_loc[i][0]], 'timestep': time+t+l, 'positive': False})
-
-
-    # for t in range(max_steps-1):
-    #     const.append({'agent': i, 'loc': [current_loc[j][t+1], current_loc[j][t]], 'timestep': t, 'positive': False})
-    #     const.append({'agent': j, 'loc': [current_loc[i][t+1], current_loc[i][t]], 'timestep': t, 'positive': False})
 
     print('agent', i,'is now at', current_loc[i][0], 'and will collide at', loc_of_collision)
     print('agent', j,'is now at', current_loc[j][0], 'and will collide at', loc_of_collision)
-    # print(const)
 
     path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const, time)
     path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const, time)
 
-    # if len(path_new_a) > len(path_new_b):
-    #     path_new = path_new_b
-    #     print('new path for agent', j, 'is', path_new, 'to goal location', goal[j])
-    #     changed_agent = j
-    # else:
-    #     path_new = path_new_a
-    #     changed_agent = i
-    #     print('new path for agent', i, 'is', path_new, 'to goal location', goal[i])
     k_a = 0
     k_b = 0
     if current_loc[j] == goal[j]:
         k_a = 2
     if current_loc[i] == goal[i]:
         k_b = 2
-    optional_path_length_a = len(path_new_a) + len(current_loc[j]) - k_a
-    optional_path_length_b = len(path_new_b) + len(current_loc[i]) - k_b
-    # if len(path_new_a) > len(path_new_b) and k_b == 0 and k_a == 0:
-    #     path_new = path_new_b
-    #     print('new path for agent', j, 'is', path_new, 'to goal location', goal[j])
-    #     changed_agent = j
-    # elif len(path_new_a) <= len(path_new_b) and k_a == 0 and k_b == 0:
-    #     path_new = path_new_a
-    #     changed_agent = i
-    #     print('new path for agent', i, 'is', path_new, 'to goal location', goal[i])
-    # if optional_path_length_a <= optional_path_length_b and k_a == 0 or k_b == 0:
-    #     path_new = path_new_b
-    #     changed_agent = j
-    # elif optional_path_length_a > optional_path_length_b:
-    #     path_new = path_new_a
-    #     changed_agent = i
-    # elif path_new_a is None and path_new_b is not None:
-    #     path_new = path_new_b
-    #     changed_agent = j
-    # elif path_new_b is None and path_new_a is not None:
-    #     path_new = path_new_a
-    #     changed_agent = i
-    if k_a == 2 and path_new_a is not None:
+    optional_path_length_a = 1000
+    optional_path_length_b = 1000
+    if path_new_a is not None:
+        optional_path_length_a = len(path_new_a) + len(current_loc[j]) - k_a
+    if path_new_b is not None:
+        optional_path_length_b = len(path_new_b) + len(current_loc[i]) - k_b
+
+    if k_a == 2 and path_new_a is not None or len(path_new_a) < 30:
         path_new = path_new_a
         changed_agent = i
-    elif k_b == 2 and path_new_b is not None:
+    elif k_b == 2 and path_new_b is not None or len(path_new_a) < 30:
         path_new = path_new_b
         changed_agent = j
     elif path_new_a is None and path_new_b is not None:
@@ -265,19 +232,18 @@ def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, loc_
         path_new = path_new_a
         changed_agent = i
     elif path_new_a is not None and path_new_b is not None:
-        if k_a == 2:
-            path_new = path_new_a
-            changed_agent = i
-        elif k_b == 2:
-            path_new = path_new_b
-            changed_agent = j
-        elif optional_path_length_a <= optional_path_length_b:
+        # if k_a == 2:
+        #     path_new = path_new_a
+        #     changed_agent = i
+        # elif k_b == 2:
+        #     path_new = path_new_b
+        #     changed_agent = j
+        if optional_path_length_a <= optional_path_length_b:
             path_new = path_new_b
             changed_agent = j
         elif optional_path_length_a > optional_path_length_b:
             path_new = path_new_a
             changed_agent = i
-    # elif path_new_a is not None :
 
     print('new path', path_new)
     if path_new is None:
