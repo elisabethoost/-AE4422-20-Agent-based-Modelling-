@@ -55,73 +55,36 @@ def print_locations(my_map, locations):
     print(to_print)
 
 
-# def import_mapf_instance(filename):
-#     """
-#     Imports mapf instance from instances folder. Expects input as a .txt file in the following format:
-#         Line1: #rows #columns (number of rows and columns)
-#         Line2-X: Grid of @ and . symbols with format #rows * #columns. The @ indicates an obstacle, whereas . indicates free cell.
-#         Line X: #agents (number of agents)
-#         Line X+1: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent 1)
-#         Line X+2: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent 2)
-#         Line X+n: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent n)
-#
-#     Example:
-#         4 7             # grid with 4 rows and 7 columns
-#         @ @ @ @ @ @ @   # example row with obstacle in every column
-#         @ . . . . . @   # example row with 5 free cells in the middle
-#         @ @ @ . @ @ @
-#         @ @ @ @ @ @ @
-#         2               # 2 agents in this experiment
-#         1 1 1 5         # agent 1 starts at (1,1) and has (1,5) as goal
-#         1 2 1 4         # agent 2 starts at (1,2) and has (1,4) as goal
-#     """
-#     f = Path(filename)
-#     if not f.is_file():
-#         raise BaseException(filename + " does not exist.")
-#     f = open(filename, 'r')
-#     # first line: #rows #columns
-#     line = f.readline()
-#     rows, columns = [int(x) for x in line.split(' ')]
-#     rows = int(rows)
-#     columns = int(columns)
-#     # #rows lines with the map
-#     my_map = []
-#     for r in range(rows):
-#         line = f.readline()
-#         my_map.append([])
-#         for cell in line:
-#             if cell == '@':
-#                 my_map[-1].append(True)
-#             elif cell == '.':
-#                 my_map[-1].append(False)
-#     # #agents
-#     line = f.readline()
-#     num_agents = int(line)
-#     # #agents lines with the start/goal positions
-#     starts = []
-#     goals = []
-#     for a in range(num_agents):
-#         line = f.readline()
-#         sx, sy, gx, gy = [int(x) for x in line.split(' ')]
-#         starts.append((sx, sy))
-#         goals.append((gx, gy))
-#     f.close()
-#     return my_map, starts, goals
 def import_mapf_instance(filename):
+    """
+    Imports mapf instance from instances folder. Expects input as a .txt file in the following format:
+        Line1: #rows #columns (number of rows and columns)
+        Line2-X: Grid of @ and . symbols with format #rows * #columns. The @ indicates an obstacle, whereas . indicates free cell.
+        Line X: #agents (number of agents)
+        Line X+1: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent 1)
+        Line X+2: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent 2)
+        Line X+n: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent n)
+
+    Example:
+        4 7             # grid with 4 rows and 7 columns
+        @ @ @ @ @ @ @   # example row with obstacle in every column
+        @ . . . . . @   # example row with 5 free cells in the middle
+        @ @ @ . @ @ @
+        @ @ @ @ @ @ @
+        2               # 2 agents in this experiment
+        1 1 1 5         # agent 1 starts at (1,1) and has (1,5) as goal
+        1 2 1 4         # agent 2 starts at (1,2) and has (1,4) as goal
+    """
     f = Path(filename)
     if not f.is_file():
         raise BaseException(filename + " does not exist.")
     f = open(filename, 'r')
-
-    # First line: #rows #columns
+    # first line: #rows #columns
     line = f.readline()
-    rows, columns = [int(x) for x in line.split()]
-
-    # Rows and Columns
+    rows, columns = [int(x) for x in line.split(' ')]
     rows = int(rows)
     columns = int(columns)
-
-    # Map
+    # #rows lines with the map
     my_map = []
     for r in range(rows):
         line = f.readline()
@@ -131,33 +94,71 @@ def import_mapf_instance(filename):
                 my_map[-1].append(True)
             elif cell == '.':
                 my_map[-1].append(False)
-
-    # Close the file
-    f.close()
-
-    # Generate random number of agents (between 1 and 5)
-    num_agents = random.randint(7, 8)
-
-    # Generate random start and goal locations for each agent
+    # #agents
+    line = f.readline()
+    num_agents = int(line)
+    # #agents lines with the start/goal positions
     starts = []
     goals = []
-    for _ in range(num_agents):
-        # Generate random start and goal locations
-        start_x, start_y, goal_x, goal_y = -1, -1, -1, -1
-        while True:
-            start_x = random.randint(0, rows - 1)
-            start_y = random.randint(0, columns - 1)
-            goal_x = random.randint(0, rows - 1)
-            goal_y = random.randint(0, columns - 1)
-            if (start_x, start_y) not in starts and (goal_x, goal_y) not in goals \
-                    and not my_map[start_x][start_y] and not my_map[goal_x][goal_y]:
-                break
-
-        # Append start and goal to the list
-        starts.append((start_x, start_y))
-        goals.append((goal_x, goal_y))
-
+    for a in range(num_agents):
+        line = f.readline()
+        sx, sy, gx, gy = [int(x) for x in line.split(' ')]
+        starts.append((sx, sy))
+        goals.append((gx, gy))
+    f.close()
     return my_map, starts, goals
+
+# def import_mapf_instance(filename):
+#     f = Path(filename)
+#     if not f.is_file():
+#         raise BaseException(filename + " does not exist.")
+#     f = open(filename, 'r')
+#
+#     # First line: #rows #columns
+#     line = f.readline()
+#     rows, columns = [int(x) for x in line.split()]
+#
+#     # Rows and Columns
+#     rows = int(rows)
+#     columns = int(columns)
+#
+#     # Map
+#     my_map = []
+#     for r in range(rows):
+#         line = f.readline()
+#         my_map.append([])
+#         for cell in line:
+#             if cell == '@':
+#                 my_map[-1].append(True)
+#             elif cell == '.':
+#                 my_map[-1].append(False)
+#
+#     # Close the file
+#     f.close()
+#
+#     # Generate random number of agents (between 1 and 5)
+#     num_agents = random.randint(7, 8)
+#
+#     # Generate random start and goal locations for each agent
+#     starts = []
+#     goals = []
+#     for _ in range(num_agents):
+#         # Generate random start and goal locations
+#         start_x, start_y, goal_x, goal_y = -1, -1, -1, -1
+#         while True:
+#             start_x = random.randint(0, rows - 1)
+#             start_y = random.randint(0, columns - 1)
+#             goal_x = random.randint(0, rows - 1)
+#             goal_y = random.randint(0, columns - 1)
+#             if (start_x, start_y) not in starts and (goal_x, goal_y) not in goals \
+#                     and not my_map[start_x][start_y] and not my_map[goal_x][goal_y]:
+#                 break
+#
+#         # Append start and goal to the list
+#         starts.append((start_x, start_y))
+#         goals.append((goal_x, goal_y))
+#
+#     return my_map, starts, goals
 
 
 
@@ -173,34 +174,34 @@ if __name__ == '__main__':
                         help='The solver to use (one of: {CBS,Independent,Prioritized}), defaults to ' + str(SOLVER))
 
     args = parser.parse_args()
-    # Hint: Command line options can be added in Spyder by pressing CTRL + F6 > Command line options. 
+    # Hint: Command line options can be added in Spyder by pressing CTRL + F6 > Command line options.
     # In PyCharm, they can be added as parameters in the configuration.
 
     result_file = open("results.csv", "w", buffering=1)
 
     for file in sorted(glob.glob(args.instance)):
 
-        print("***Import an instance***")
+        print("Import an instance")
         my_map, starts, goals = import_mapf_instance(file)
         print_mapf_instance(my_map, starts, goals)
 
         if args.solver == "CBS":
-            print("***Run CBS***")
+            print("Run CBS")
             cbs = CBSSolver(my_map, starts, goals)
             paths = cbs.find_solution(args.disjoint)
         elif args.solver == "Independent":
-            print("***Run Independent***")
+            print("Run Independent")
             solver = IndependentSolver(my_map, starts, goals)
             paths = solver.find_solution()
         elif args.solver == "Prioritized":
-            print("***Run Prioritized***")
+            print("Run Prioritized")
             solver = PrioritizedPlanningSolver(my_map, starts, goals)
             paths = solver.find_solution()
         elif args.solver == "Distributed":  # Wrapper of distributed planning solver class
-            print("***Run Distributed Planning***")
-            solver = DistributedPlanningSolver(my_map, starts, goals)#, ...) #!!!TODO: add your own distributed planning implementation here.
+            print("Run Distributed Planning")
+            solver = DistributedPlanningSolver(my_map, starts, goals) #, ...) ## TODO: add your own distributed planning implementation here.
             paths = solver.find_solution()
-        else: 
+        else:
             raise RuntimeError("Unknown solver!")
 
         cost = get_sum_of_cost(paths)
@@ -208,10 +209,8 @@ if __name__ == '__main__':
 
 
         if not args.batch:
-            print("***Test paths on a simulation***")
+            print("Test paths on a simulation")
             animation = Animation(my_map, starts, goals, paths)
             # animation.save("output.mp4", 1.0) # install ffmpeg package to use this option
             animation.show()
     result_file.close()
-
-

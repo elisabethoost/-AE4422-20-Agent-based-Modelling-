@@ -97,8 +97,8 @@ class DistributedPlanningSolver(object):
             # close_agents = list(set(combined))
             # detected = detected_
 
-            # for q in range(0,2):
-            for q in range(len(detected)):
+            for q in range(0,2):
+            # for q in range(len(detected)):
                 for i in range(len(detected)):
                     agent0, agent1 = detected[i]
                     possible_collision = detect_collision(agent0, agent1, intermediate_result, self.goals)
@@ -191,7 +191,17 @@ def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, time
             for l in range(100):
                 const2.append({'agent': j, 'loc': [goal[i]], 'timestep': time+t+l, 'positive': False})
 
-    path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
+    if current_loc[i][0] == goal[i]:
+        if current_loc[j][1] == goal[i] or current_loc[j][2]==goal[i]:
+            # temp_goal = [(1, 1)]
+            path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
+            # path_new_a = a_star(map_, current_loc[i][0], temp_goal, heuris[i], i, const1, time)
+
+            # path_new_a = [(4,9), (3,9), (4,9)]
+    else:
+        path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
+    # path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
+
     path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const2, time)
     return path_new_a, path_new_b, const1, const2
 
@@ -409,9 +419,4 @@ def separate_list(input_list):
 #     # elif changed_agent == 100:
 #     #     path_a = path_new_a
 #     #     path_b = path_new_b
-#     return path_a, path_b, i, j, new_const
-
-
-
-
-
+#     return path_a, path_b,i,j,new_const
