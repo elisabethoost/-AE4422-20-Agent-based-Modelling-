@@ -1,5 +1,5 @@
 import time as timer
-from single_agent_planner import compute_heuristics, a_star, get_sum_of_cost
+from single_agent_planner import compute_heuristics, a_star_one, get_sum_of_cost
 
 
 class PrioritizedPlanningSolver(object):
@@ -33,20 +33,23 @@ class PrioritizedPlanningSolver(object):
 
         for i in range(self.num_of_agents):  # Find path for each agent
 
-            path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
+            path = a_star_one(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
             print(constraints)
+
             if path is None:
                 raise BaseException('No solutions')
             result.append(path)
 
             for j in range(self.num_of_agents):
-                for t in range(len(path)):
+                for t in range(len(path)): #t=0,1,2,3,4,5; t=0,1,2
                     if j > i:
+                        # constraints.append({'agent': j, 'loc': path[3], 'timestep': 3, 'positive': False})
+
                         constraints.append( #vertex constraints
                             {
                                 'agent': j,
-                                'loc': path[t],
+                                'loc': [path[t]],
                                 'timestep': t,
                                 'positive': False
                             })
@@ -63,10 +66,10 @@ class PrioritizedPlanningSolver(object):
                 constraints.append(
                     {
                         'agent': j,
-                        'loc': path[-1],
+                        'loc': [path[-1]],
                         'timestep': -1,
                         'start_time': len(path) - 1,
-                        'positive':False
+                        'positive': False
                     }
                     )
 
