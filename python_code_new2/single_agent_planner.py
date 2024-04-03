@@ -175,6 +175,34 @@ def compare_nodes(n1, n2):
     return n1['g_val'] + n1['h_val'] < n2['g_val'] + n2['h_val']
 
 
+def get_path_new(my_map, constraint_table, curr, agent, goal, time, h_values, open_list):
+    if curr['loc'] == goal and curr['timestep'] == time:
+        path = []
+        goal_loc = curr['loc']
+        print("goal_loc", goal_loc)
+        path.extend([goal_loc])
+        for dir in range(5):
+            child_loc = move(goal_loc, dir)
+
+            print("child_loc", child_loc)
+            for t in range(2):
+                if not is_constrained(curr['loc'], child_loc, curr['timestep'] + t,
+                                                                      constraint_table):
+                    print('is constrained PASSED')
+                    if not my_map[child_loc[0]][child_loc[1]]:
+                        print('is on map PASSED')
+                        if child_loc != goal_loc:
+                            print('is not goal PASSED')
+                            print("IF statement works", child_loc)
+                            path.extend([child_loc])
+                            path.extend([curr['loc']])
+                            return path
+        else:
+            return get_path(curr)
+    else:
+        return get_path(curr)
+    # return get_path(curr)
+
 # def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
 def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
     """ my_map      - binary obstacle map
@@ -187,7 +215,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
     constraint_table = build_constraint_table(constraints, agent)
     open_list = []
     closed_list = dict()
-    earliest_goal_timestep = 0
+    earliest_goal_timestep = time
     h_value = h_values[start_loc]
     root = {'loc': start_loc, 'g_val': 0, 'h_val': h_value, 'parent': None, 'timestep': time}
     push_node(open_list, root)
@@ -195,7 +223,11 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
     while len(open_list) > 0:
         curr = pop_node(open_list)
         if curr['loc'] == goal_loc and curr['timestep'] >= earliest_goal_timestep:
-            found = True
+            print("agent", agent, "is constrained?", is_constrained(goal_loc, goal_loc, curr['timestep'], constraint_table))
+            if is_constrained(goal_loc, goal_loc, curr['timestep'], constraint_table):
+                found = True
+            else:
+                found = False
             if curr['timestep'] + 1 < len(constraint_table):
                 for t in range(curr['timestep'] + 1, len(constraint_table)):
                     if is_constrained(goal_loc, goal_loc, t, constraint_table):
@@ -204,6 +236,11 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
                         break
             if found:
                 return get_path(curr)
+            if not found:
+                new_got_path = get_path_new(my_map, constraint_table, curr, agent, goal_loc, time, h_values, open_list)
+                print("NEWWWW PATHHHHH", new_got_path)
+                return new_got_path
+
         for dir in range(5):
             child_loc = move(curr['loc'], dir)
             if child_loc[0] < 0 or child_loc[0] >= len(my_map) \
@@ -227,6 +264,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
                 push_node(open_list, child)
 
     return None  # Failed to find solutions
+
 
 def a_star_one(my_map, start_loc, goal_loc, h_values, agent, constraints):
     """ my_map      - binary obstacle map
@@ -256,6 +294,7 @@ def a_star_one(my_map, start_loc, goal_loc, h_values, agent, constraints):
                         break
             if found:
                 return get_path(curr)
+
         for dir in range(5):
             child_loc = move(curr['loc'], dir)
             if child_loc[0] < 0 or child_loc[0] >= len(my_map) \

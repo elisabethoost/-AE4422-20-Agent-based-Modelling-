@@ -179,29 +179,29 @@ def avoid_collision(map_, current_loc, goal, heuris, const, agent1, agent2, time
             const1.append({'agent': i, 'loc': [current_loc[j][t], current_loc[i][t]], 'timestep': time+t, 'positive': False})
             const2.append({'agent': j, 'loc': [current_loc[i][t], current_loc[j][t]], 'timestep': time+t, 'positive': False})
         if current_loc[j][t] == goal[j]:
-            for g in range(2):
-                current_loc[j].extend(current_loc[j][t])
+            # for g in range(2):
+            #     current_loc[j].extend(current_loc[j][t])
             const2.append({'agent': j, 'loc': [current_loc[i][t]], 'timestep': time + t, 'positive': False})
             for l in range(100):
                 const1.append({'agent': i, 'loc': [goal[j]], 'timestep': time+t+l, 'positive': False})
         if current_loc[i][t] == goal[i]:
-            for f in range(2):
-                current_loc[i].extend(current_loc[i])
+        #     for f in range(2):
+        #         current_loc[i].extend(current_loc[i])
             const1.append({'agent': i, 'loc': [current_loc[j][t]], 'timestep': time + t, 'positive': False})
             for l in range(100):
                 const2.append({'agent': j, 'loc': [goal[i]], 'timestep': time+t+l, 'positive': False})
 
-    if current_loc[i][0] == goal[i]:
-        if current_loc[j][1] == goal[i] or current_loc[j][2]==goal[i]:
-            # temp_goal = [(1, 1)]
-            path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
-            # path_new_a = a_star(map_, current_loc[i][0], temp_goal, heuris[i], i, const1, time)
+    # if current_loc[i][0] == goal[i]:
+    #     if current_loc[j][1] == goal[i] or current_loc[j][2]==goal[i]:
+    #         # temp_goal = [(1, 1)]
+    #         path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
+    #         # path_new_a = a_star(map_, current_loc[i][0], temp_goal, heuris[i], i, const1, time)
+    #
+    #         # path_new_a = [(4,9), (3,9), (4,9)]
+    # else:
+    #     path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
 
-            # path_new_a = [(4,9), (3,9), (4,9)]
-    else:
-        path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
-    # path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
-
+    path_new_a = a_star(map_, current_loc[i][0], goal[i], heuris[i], i, const1, time)
     path_new_b = a_star(map_, current_loc[j][0], goal[j], heuris[j], j, const2, time)
     return path_new_a, path_new_b, const1, const2
 
@@ -222,10 +222,10 @@ def assign_routes(map_, heuris, current_loc, goal, const1, const2, path_new_a, p
     additional_path_length_a = 100
     additional_path_length_b = 100
     if path_new_a is not None:
-        optional_path_length_a = len(path_new_a) + len(current_loc[j]) - k_b
+        optional_path_length_a = len(path_new_a) + len(current_loc[j])
         additional_path_length_a = len(path_new_a) - len(current_loc[i])
     if path_new_b is not None:
-        optional_path_length_b = len(path_new_b) + len(current_loc[i]) - k_a
+        optional_path_length_b = len(path_new_b) + len(current_loc[i])
         additional_path_length_b = len(path_new_b) - len(current_loc[j])
     if path_new_a is None and path_new_b is None:
         raise BaseException('No solutions, both are none')
@@ -254,16 +254,19 @@ def assign_routes(map_, heuris, current_loc, goal, const1, const2, path_new_a, p
                 new_const.extend(const2)
 
         if k_a == 2 and k_b == 0:
-            print("AGENT A IS ALREADY AT GOAL", i)
-            if optional_path_length_b > 50:
-            # if additional_path_length_a <= additional_path_length_b:
+            print("AGENT A", i, "IS ALREADY AT GOAL")
+            # if optional_path_length_b > 50:
+            # if additional_path_length_a <= 3:
+            if additional_path_length_a <= additional_path_length_b:
             # if optional_path_length_a <= optional_path_length_b:
                 path_a = path_new_a
                 path_b = current_loc[j]
                 new_const.extend(const1)
                 print("first")
                 print("path_new_a", path_new_a)
+                print("currentloc_i", current_loc[i])
                 print("path_new_b", path_new_b)
+                print("currentloc_j", current_loc[j])
             else:
                 path_a = current_loc[i]
                 path_b = path_new_b
@@ -275,8 +278,9 @@ def assign_routes(map_, heuris, current_loc, goal, const1, const2, path_new_a, p
                 print("currentloc_j", current_loc[j])
         if k_b == 2 and k_a == 0:
             print("AGENT B IS ALREADY AT GOAL", j)
-            if optional_path_length_a > 50:
-            # if additional_path_length_b <= additional_path_length_a:
+            # if optional_path_length_a > 50:
+            # if additional_path_length_b <= 3:
+            if additional_path_length_b <= additional_path_length_a:
             # if optional_path_length_b <= optional_path_length_a:
                 path_b = path_new_b
                 path_a = current_loc[i]
