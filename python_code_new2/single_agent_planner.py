@@ -174,26 +174,24 @@ def compare_nodes(n1, n2):
     """Return true is n1 is better than n2."""
     return n1['g_val'] + n1['h_val'] < n2['g_val'] + n2['h_val']
 
-
+## this is the new function we added - reasoning explained in the report
 def get_path_new(my_map, constraint_table, curr, agent, goal, time, h_values, open_list):
     if curr['loc'] == goal and curr['timestep'] == time:
         path = []
         goal_loc = curr['loc']
-        print("goal_loc", goal_loc)
         path.extend([goal_loc])
+        # every direction is checked. Once a direction is possible, for loop is stopped
         for dir in range(5):
             child_loc = move(goal_loc, dir)
-
-            print("child_loc", child_loc)
             for t in range(2):
                 if not is_constrained(curr['loc'], child_loc, curr['timestep'] + t,
                                                                       constraint_table):
-                    print('is constrained PASSED')
+                    # if agents goal location is constraint in t1 or t1+1
                     if not my_map[child_loc[0]][child_loc[1]]:
-                        print('is on map PASSED')
+                        #if moving to another location is on the map
                         if child_loc != goal_loc:
-                            print('is not goal PASSED')
-                            print("IF statement works", child_loc)
+                            # if this location is not staying at the goal location (if move is not [(0,0)]
+                            # then add this location to the path, and add the goal location thereafter. So this is a path to take 1 step away from the goal, to make way for another agent.
                             path.extend([child_loc])
                             path.extend([curr['loc']])
                             return path
@@ -201,9 +199,9 @@ def get_path_new(my_map, constraint_table, curr, agent, goal, time, h_values, op
             return get_path(curr)
     else:
         return get_path(curr)
-    # return get_path(curr)
 
-# def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
+
+# a star, where we added the time
 def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
     """ my_map      - binary obstacle map
         start_loc   - start position
@@ -215,8 +213,10 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
     constraint_table = build_constraint_table(constraints, agent)
     open_list = []
     closed_list = dict()
+    # we changed the line below by changed 0 to time
     earliest_goal_timestep = time
     h_value = h_values[start_loc]
+    # here as well, the original code contained 0, instead of 'time'.
     root = {'loc': start_loc, 'g_val': 0, 'h_val': h_value, 'parent': None, 'timestep': time}
     push_node(open_list, root)
     closed_list[(root['loc'], root['timestep'])] = root
@@ -237,8 +237,8 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints, time):
             if found:
                 return get_path(curr)
             if not found:
+            # here the new function is called, to find a path for an agent who is already at its goal location.
                 new_got_path = get_path_new(my_map, constraint_table, curr, agent, goal_loc, time, h_values, open_list)
-                print("NEWWWW PATHHHHH", new_got_path)
                 return new_got_path
 
         for dir in range(5):

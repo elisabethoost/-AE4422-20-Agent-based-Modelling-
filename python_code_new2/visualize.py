@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import animation
 from matplotlib.widgets import Button
 
-# Colors = ['green', 'blue', 'orange']
+# We added colors to the agents.
 Colors = ['green', 'blue', 'orange', 'purple', 'magenta', 'cyan', 'yellow']
 
 
@@ -69,7 +69,7 @@ class Animation:
             self.agent_names[i].set_verticalalignment('center')
             self.artists.append(self.agent_names[i])
 
-        # Pause button
+        # Here we added the pause button
         self.pause_ax = self.fig.add_axes([0.8, 0.025, 0.1, 0.04])
         self.pause_button = Button(self.pause_ax, 'Pause', hovercolor='0.975')
         self.pause_button.on_clicked(self.toggle_pause)

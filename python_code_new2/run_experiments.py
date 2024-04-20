@@ -20,14 +20,14 @@ SOLVER = "Distributed"
 # SOLVER = "Prioritized"
 def print_mapf_instance(my_map, starts, goals):
     """
-    Prints start location and goal location of all agents, using @ for an obstacle, . for a open cell, and 
+    Prints start location and goal location of all agents, using @ for an obstacle, . for a open cell, and
     a number for the start location of each agent.
-    
+
     Example:
-        @ @ @ @ @ @ @ 
-        @ 0 1 . . . @ 
-        @ @ @ . @ @ @ 
-        @ @ @ @ @ @ @ 
+        @ @ @ @ @ @ @
+        @ 0 1 . . . @
+        @ @ @ . @ @ @
+        @ @ @ @ @ @ @
     """
     print('Start locations')
     print_locations(my_map, starts)
@@ -54,37 +54,18 @@ def print_locations(my_map, locations):
         to_print += '\n'
     print(to_print)
 
-
+## Uncomment this function if: You want DO NOT want random placement of agents. Comment the function below this one if you uncomment this one.
 def import_mapf_instance(filename):
-    """
-    Imports mapf instance from instances folder. Expects input as a .txt file in the following format:
-        Line1: #rows #columns (number of rows and columns)
-        Line2-X: Grid of @ and . symbols with format #rows * #columns. The @ indicates an obstacle, whereas . indicates free cell.
-        Line X: #agents (number of agents)
-        Line X+1: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent 1)
-        Line X+2: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent 2)
-        Line X+n: xCoordStart yCoordStart xCoordGoal yCoordGoal (xy coordinate start and goal for Agent n)
-
-    Example:
-        4 7             # grid with 4 rows and 7 columns
-        @ @ @ @ @ @ @   # example row with obstacle in every column
-        @ . . . . . @   # example row with 5 free cells in the middle
-        @ @ @ . @ @ @
-        @ @ @ @ @ @ @
-        2               # 2 agents in this experiment
-        1 1 1 5         # agent 1 starts at (1,1) and has (1,5) as goal
-        1 2 1 4         # agent 2 starts at (1,2) and has (1,4) as goal
-    """
     f = Path(filename)
     if not f.is_file():
         raise BaseException(filename + " does not exist.")
     f = open(filename, 'r')
+
     # first line: #rows #columns
     line = f.readline()
     rows, columns = [int(x) for x in line.split(' ')]
     rows = int(rows)
-    columns = int(columns)
-    # #rows lines with the map
+
     my_map = []
     for r in range(rows):
         line = f.readline()
@@ -94,10 +75,10 @@ def import_mapf_instance(filename):
                 my_map[-1].append(True)
             elif cell == '.':
                 my_map[-1].append(False)
-    # #agents
+    #agents
     line = f.readline()
     num_agents = int(line)
-    # #agents lines with the start/goal positions
+    #agents lines with the start/goal positions
     starts = []
     goals = []
     for a in range(num_agents):
@@ -108,6 +89,8 @@ def import_mapf_instance(filename):
     f.close()
     return my_map, starts, goals
 
+
+## Uncomment this function if: You want want random placement of agents. Comment the function above this one if you uncomment this one.
 # def import_mapf_instance(filename):
 #     f = Path(filename)
 #     if not f.is_file():
@@ -136,9 +119,9 @@ def import_mapf_instance(filename):
 #     # Close the file
 #     f.close()
 #
-#     # Generate random number of agents (between 1 and 5)
-#     num_agents = random.randint(7, 8)
-#
+#     # Generate random number of agents (between 1 and 5): uncomment line below and comment the one below that.
+#     # num_agents = random.randint(1, 5)
+#     num_agents = 4
 #     # Generate random start and goal locations for each agent
 #     starts = []
 #     goals = []
@@ -153,13 +136,10 @@ def import_mapf_instance(filename):
 #             if (start_x, start_y) not in starts and (goal_x, goal_y) not in goals \
 #                     and not my_map[start_x][start_y] and not my_map[goal_x][goal_y]:
 #                 break
-#
 #         # Append start and goal to the list
 #         starts.append((start_x, start_y))
 #         goals.append((goal_x, goal_y))
-#
 #     return my_map, starts, goals
-
 
 
 if __name__ == '__main__':
